@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.cywetc.spring.boot.autoconfigure.WebAutoConfiguration
