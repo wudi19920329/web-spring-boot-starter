@@ -37,11 +37,13 @@ public class GlobalExceptionAdvice {
 		final String message = "业务异常";
 		log.error(message, e);
 		String errMessage = e.getMessage();
-		if (properties.isOpenErrorPageExceptionHandle() && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
+		if (!properties.isOpenErrorPageExceptionHandle() && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
 			BaseResEntity<Void> exceptionInfo =
 					BaseResEntity.exception(e.getCode() == 0 ? HttpStatus.BAD_REQUEST.value() : e.getCode(), StringUtils.isBlank(errMessage) ? message : errMessage);
 
 			response.getOutputStream().write(objectMapper.writeValueAsString(exceptionInfo).getBytes(Charset.defaultCharset()));
+			response.setStatus(510);
+			response.getOutputStream().flush();
 			return null;
 		}
 		request.setAttribute("errMessage", errMessage);
@@ -52,9 +54,11 @@ public class GlobalExceptionAdvice {
 	public String handleException(HttpServletRequest request, HttpServletResponse response, Exception e) throws IOException {
 		log.error("系统异常:", e);
 
-		if (properties.isOpenErrorPageExceptionHandle() && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
+		if (!properties.isOpenErrorPageExceptionHandle() && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
 			BaseResEntity<Void> exceptionInfo = BaseResEntity.exception(GlobalCode.SYSTEM_ERROR.getCode(), GlobalCode.SYSTEM_ERROR.getMessage());
 			response.getOutputStream().write(objectMapper.writeValueAsString(exceptionInfo).getBytes(Charset.defaultCharset()));
+			response.setStatus(510);
+			response.getOutputStream().flush();
 			return null;
 		}
 

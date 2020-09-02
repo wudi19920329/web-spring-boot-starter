@@ -2,6 +2,7 @@ package com.cywetc.spring.boot.autoconfigure.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.core.Ordered;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -18,6 +19,7 @@ public class ObjectMapperBuilderCustomizer implements Jackson2ObjectMapperBuilde
 	public void customize(Jackson2ObjectMapperBuilder builder) {
 		builder.serializationInclusion(JsonInclude.Include.NON_NULL);
 		builder.featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		builder.featuresToDisable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 	}
 
 	@Override

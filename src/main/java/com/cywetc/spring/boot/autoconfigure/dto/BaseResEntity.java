@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * @since 1.0.0
  */
 @Data
-public class BaseResEntity<T> {
+public class BaseResEntity<T>  {
 	private int code;
 	private String message;
 	private T data;
