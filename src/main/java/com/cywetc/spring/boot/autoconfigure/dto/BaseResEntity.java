@@ -12,19 +12,19 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Data
 public class BaseResEntity<T>  {
-	private int code;
+	private String code;
 	private String message;
 	private T data;
 
-	public static BaseResEntity<Void> exception(int code, String message) {
-		BaseResEntity<Void> baseResEntity = new BaseResEntity<>();
+	public static BaseResEntity<Void> exception(String code, String message) {
+		BaseResEntity<Void> baseResEntity = new BaseResEntity();
 		baseResEntity.setCode(code);
 		baseResEntity.setMessage(message);
 		return baseResEntity;
 	}
 
 	public static <T> BaseResEntity<T> ok(T data) {
-		BaseResEntity<T> baseResEntity = new BaseResEntity<>();
+		BaseResEntity<T> baseResEntity = new BaseResEntity();
 		baseResEntity.setCode(GlobalCode.SUCCESS.getCode());
 		baseResEntity.setMessage(GlobalCode.SUCCESS.getMessage());
 		baseResEntity.setData(data);

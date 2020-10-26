@@ -14,12 +14,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum GlobalCode {
 
-	SUCCESS(200, "成功"),
+	SUCCESS("000000", "成功"),
+	ARGS_VALID_ERROR("999998", "参数校验异常"),
+	SYSTEM_ERROR("999999", "系统异常");
 
-	UNAUTHORIZED(401, "请先登录"),
-
-	SYSTEM_ERROR(500, "系统异常");
-
-	private int code;
+	private String code;
 	private String message;
 }

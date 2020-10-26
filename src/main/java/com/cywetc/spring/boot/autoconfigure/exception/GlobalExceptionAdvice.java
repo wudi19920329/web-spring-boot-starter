@@ -2,20 +2,13 @@ package com.cywetc.spring.boot.autoconfigure.exception;
 
 import com.cywetc.spring.boot.autoconfigure.dto.BaseResEntity;
 import com.cywetc.spring.boot.autoconfigure.enums.GlobalCode;
-import com.cywetc.spring.boot.autoconfigure.properties.WebProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 全局异常处理
@@ -27,43 +20,30 @@ import java.nio.charset.Charset;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionAdvice {
-	@Autowired
-	private WebProperties properties;
-	@Autowired
-	private ObjectMapper objectMapper;
 
+	@ResponseBody
 	@ExceptionHandler(value = ServiceException.class)
-	public String handleRuntimeException(HttpServletRequest request, HttpServletResponse response, ServiceException e) throws Exception {
-		final String message = "业务异常";
-		log.error(message, e);
+	public BaseResEntity<Void> handleRuntimeException(ServiceException e) {
+		final String defaultMessage = "业务异常";
+		log.error(defaultMessage, e);
 		String errMessage = e.getMessage();
-		if (!properties.isOpenErrorPageExceptionHandle() && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
-			BaseResEntity<Void> exceptionInfo =
-					BaseResEntity.exception(e.getCode() == 0 ? HttpStatus.BAD_REQUEST.value() : e.getCode(), StringUtils.isBlank(errMessage) ? message : errMessage);
-
-			response.getOutputStream().write(objectMapper.writeValueAsString(exceptionInfo).getBytes(Charset.defaultCharset()));
-			response.setStatus(510);
-			response.getOutputStream().flush();
-			return null;
-		}
-		request.setAttribute("errMessage", errMessage);
-		return properties.getErrorTipPage();
+		return BaseResEntity
+				.exception(StringUtils.isBlank(e.getCode()) ? GlobalCode.SYSTEM_ERROR.getCode() : e.getCode(), StringUtils.isBlank(errMessage) ? defaultMessage : errMessage);
 	}
 
-	@ExceptionHandler(value = Exception.class)
-	public String handleException(HttpServletRequest request, HttpServletResponse response, Exception e) throws IOException {
+	@ResponseBody
+	@ExceptionHandler({ MethodArgumentNotValidException.class })
+	public BaseResEntity<Void> handleValidationException(MethodArgumentNotValidException e) {
+		log.error("参数校验异常:", e);
+		String error = e.getBindingResult().getAllErrors().stream().findFirst().map(DefaultMessageSourceResolvable::getDefaultMessage).orElse("参数校验失败");
+		return BaseResEntity.exception(GlobalCode.ARGS_VALID_ERROR.getCode(), error);
+	}
+
+	@ResponseBody
+	@ExceptionHandler({ Exception.class })
+	public BaseResEntity<Void> handleException(Exception e) {
 		log.error("系统异常:", e);
-
-		if (!properties.isOpenErrorPageExceptionHandle() && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
-			BaseResEntity<Void> exceptionInfo = BaseResEntity.exception(GlobalCode.SYSTEM_ERROR.getCode(), GlobalCode.SYSTEM_ERROR.getMessage());
-			response.getOutputStream().write(objectMapper.writeValueAsString(exceptionInfo).getBytes(Charset.defaultCharset()));
-			response.setStatus(510);
-			response.getOutputStream().flush();
-			return null;
-		}
-
-		request.setAttribute("errMessage", GlobalCode.SYSTEM_ERROR.getMessage());
-		return properties.getErrorPage();
+		return BaseResEntity.exception(GlobalCode.SYSTEM_ERROR.getCode(), GlobalCode.SYSTEM_ERROR.getMessage());
 	}
 
 }

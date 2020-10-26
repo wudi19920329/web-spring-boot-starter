@@ -2,7 +2,7 @@ package com.cywetc.spring.boot.autoconfigure;
 
 import com.cywetc.spring.boot.autoconfigure.config.GracefulShutdownTomcatConfig;
 import com.cywetc.spring.boot.autoconfigure.config.ObjectMapperBuilderCustomizer;
-import com.cywetc.spring.boot.autoconfigure.properties.WebProperties;
+import com.cywetc.spring.boot.autoconfigure.properties.HttpClientPoolingProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
  * @author woody
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(WebProperties.class)
+@EnableConfigurationProperties(HttpClientPoolingProperties.class)
 @Import({ GracefulShutdownTomcatConfig.class })
 public class WebAutoConfiguration {
 
